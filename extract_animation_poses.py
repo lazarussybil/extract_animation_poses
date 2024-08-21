@@ -209,4 +209,4 @@ if __name__ == "__main__":
     
     # 清空渲染、提取姿势文件夹
     shutil.rmtree(blender_folder)
-    # shutil.rmtree(prompt_folder)
+    shutil.rmtree(prompt_folder)
