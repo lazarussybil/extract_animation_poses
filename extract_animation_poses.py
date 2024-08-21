@@ -31,8 +31,8 @@ def clear_scene():
     bpy.ops.object.delete()
 
 def load_model_animation(model_fbx_path, animation_fbx_path):
-    model_fbx_path = r'D:\0821\测试动画\SK_Mannequin_Sequence.FBX'
-    animation_fbx_path = r'D:\0821\测试动画\Animation\Talking_Casual_HandGesture18.FBX'
+    # model_fbx_path = r'D:\0821\测试动画\SK_Mannequin_Sequence.FBX'
+    # animation_fbx_path = r'D:\0821\测试动画\Animation\Talking_Casual_HandGesture18.FBX'
 
     # 导入模型
     bpy.ops.import_scene.fbx(filepath=model_fbx_path, automatic_bone_orientation=True)
@@ -207,6 +207,6 @@ if __name__ == "__main__":
     # stitch_pngs(prompt_folder, stitch_folder)
     # print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), ': stitch pngs successfullly')
     
-    # # 清空渲染、提取姿势文件夹
-    # shutil.rmtree(blender_folder)
+    # 清空渲染、提取姿势文件夹
+    shutil.rmtree(blender_folder)
     # shutil.rmtree(prompt_folder)
