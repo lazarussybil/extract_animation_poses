@@ -97,22 +97,24 @@ from pytorch_openpose.src.body import Body
 body_estimation = Body('./pytorch_openpose/model/body_pose_model.pth')
 hand_estimation = Hand('./pytorch_openpose/model/hand_pose_model.pth')
 def extract_poses(blender_folder, output_folder):
-    # 读取显卡信息，设置读取的文件夹路径和文件类型（图片或视频）
+    
     print(f"Torch device: {torch.cuda.get_device_name()}")
     
     file_list = [os.path.join(blender_folder, f) for f in os.listdir(blender_folder) if f.endswith('png')]
 
-    # 处理每一帧图像
+
     body_estimation = Body('./pytorch_openpose/model/body_pose_model.pth')
     hand_estimation = Hand('./pytorch_openpose/model/hand_pose_model.pth')
 
+
+    ### ! 取消注释可以获得输出图像相关的代码
     for file_path in file_list:
         oriImg = cv2.imread(file_path)
         img_height, img_width, _ = cv2.imread(file_list[0]).shape
 
         candidate, subset = body_estimation(oriImg)
-        canvas = np.zeros((img_height, img_width, 3), dtype=np.uint8)
-        canvas = util.draw_bodypose(canvas, candidate, subset)
+        # canvas = np.zeros((img_height, img_width, 3), dtype=np.uint8)
+        # canvas = util.draw_bodypose(canvas, candidate, subset)
 
         hands_list = util.handDetect(candidate, subset, oriImg)
         all_hand_peaks = []
@@ -121,13 +123,26 @@ def extract_poses(blender_folder, output_folder):
             peaks[:, 0] = np.where(peaks[:, 0]==0, peaks[:, 0], peaks[:, 0]+x)
             peaks[:, 1] = np.where(peaks[:, 1]==0, peaks[:, 1], peaks[:, 1]+y)
             all_hand_peaks.append(peaks)
-        canvas = util.draw_handpose(canvas, all_hand_peaks)
+        # canvas = util.draw_handpose(canvas, all_hand_peaks)
+
+        data = {
+            'body' : {
+                'candidates': candidate, #身体关节坐标
+                'subsets': subset #身体关节连接信息
+            },
+            'hands': all_hand_peaks
+        }
 
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
-        output_png = output_folder + file_path.split('/')[-1].split('.')[0] + '.png'
-        print("Saved: '", output_png, "'")
-        cv2.imwrite(output_png, canvas)
+        
+        output_npy = os.path.join(output_folder, file_path.split('/')[-1].split('.')[0] + '.npy')
+        print("Saved: '", output_npy, "'")
+        np.save(output_npy, data)
+
+        # output_png = output_folder + file_path.split('/')[-1].split('.')[0] + '.png'
+        # print("Saved: '", output_png, "'")
+        # cv2.imwrite(output_png, canvas)
 
     # 释放资源并关闭窗口
     cv2.destroyAllWindows()
