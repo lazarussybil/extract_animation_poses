@@ -1,4 +1,4 @@
-bpy==3.5.0
+bpy
 numpy
 matplotlib
 opencv-python

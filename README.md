@@ -30,7 +30,7 @@ pip install -r requirements.txt
 
 3. 运行（Run）
 ```python
-python .\extract_animation_poses.py -a 'fbx_file_path' -o 'output_path' -f int32 -x float -z float
+python extract_animation_poses.py -m D:\0821\测试动画\SK_Mannequin_Sequence.FBX -a D:\0821\测试动画\Animation\Talking_Casual_HandGesture18.FBX -o D:\0821\test -f 100 -x -0.298 -y -6.678 -z 1.67
 ```
 参数解释：
 
@@ -39,3 +39,4 @@ python .\extract_animation_poses.py -a 'fbx_file_path' -o 'output_path' -f int32
     -f | --frames: 动画帧数，默认60
     -x | --camera_x: blender中摄像头的x坐标
     -z | --camera_z: blender中摄像头的z坐标
+imp
