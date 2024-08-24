@@ -30,7 +30,7 @@ pip install -r requirements.txt
 
 3. 运行（Run）
 ```python
-python extract_animation_poses.py -m D:\0821\测试动画\SK_Mannequin_Sequence.FBX -a D:\0821\测试动画\Animation\Talking_Casual_HandGesture18.FBX -o D:\0821\test -f 100 -x -0 -y -6 -z 0.8
+python extract_animation_poses.py -m D:\0821\测试动画\SK_Mannequin_Sequence.FBX -a D:\0821\测试动画\Animation\Talking_Casual_HandGesture18.FBX -o D:\0821\test -f 100 -x -0 -y -6 -z 0.8 --mode openpose --is_draw 1
 ```
 参数解释：
 

@@ -23,7 +23,7 @@ import shutil
 import datetime
 
 from pytorch_openpose.src import util
-
+import matplotlib.pyplot as plt
 
 def clear_scene():
     bpy.ops.object.select_all(action='DESELECT')
@@ -94,27 +94,46 @@ def render_animation(model_fbx_path, animation_fbx_path, output, camera_x, camer
 from pytorch_openpose.src.hand import Hand
 from pytorch_openpose.src.body import Body
 
-body_estimation = Body('./pytorch_openpose/model/body_pose_model.pth')
-hand_estimation = Hand('./pytorch_openpose/model/hand_pose_model.pth')
-def extract_poses(blender_folder, output_folder):
-    
+def extract_poses_dwpose(blender_folder, output_folder, is_draw = False):
+    from dwpose.dwpose import DWposeDetector
+    pose_detector = DWposeDetector()
+
+    file_list = [os.path.join(blender_folder, f) for f in os.listdir(blender_folder) if f.endswith('png')]
+    for file_path in file_list: 
+        oriImg = cv2.imread(file_path)
+        pose, img_out = pose_detector(oriImg)
+        
+        output_path_npy = os.path.join(output_folder, file_path.split('/')[-1].split('.')[0] + '.npy')
+        print("Saved: '", output_path_npy, "'")
+        np.save(output_path_npy, pose)
+
+        if is_draw: 
+            output_path_png = os.path.join(output_folder, file_path.split('/')[-1].split('.')[0] + '.png')
+            plt.imsave(output_path_png, img_out)
+            print("Saved: '", output_path_png, "'")
+        
+    cv2.destroyAllWindows()
+
+def extract_poses_openpose(blender_folder, output_folder, is_draw = False):
+
     print(f"Torch device: {torch.cuda.get_device_name()}")
     
     file_list = [os.path.join(blender_folder, f) for f in os.listdir(blender_folder) if f.endswith('png')]
-
 
     body_estimation = Body('./pytorch_openpose/model/body_pose_model.pth')
     hand_estimation = Hand('./pytorch_openpose/model/hand_pose_model.pth')
 
 
-    ### ! 取消注释可以获得输出图像相关的代码
     for file_path in file_list:
         oriImg = cv2.imread(file_path)
         img_height, img_width, _ = cv2.imread(file_list[0]).shape
-
+        
         candidate, subset = body_estimation(oriImg)
-        # canvas = np.zeros((img_height, img_width, 3), dtype=np.uint8)
-        # canvas = util.draw_bodypose(canvas, candidate, subset)
+        canvas = None
+
+        if is_draw:
+            canvas = np.zeros((img_height, img_width, 3), dtype=np.uint8)
+            canvas = util.draw_bodypose(canvas, candidate, subset)
 
         hands_list = util.handDetect(candidate, subset, oriImg)
         all_hand_peaks = []
@@ -123,30 +142,40 @@ def extract_poses(blender_folder, output_folder):
             peaks[:, 0] = np.where(peaks[:, 0]==0, peaks[:, 0], peaks[:, 0]+x)
             peaks[:, 1] = np.where(peaks[:, 1]==0, peaks[:, 1], peaks[:, 1]+y)
             all_hand_peaks.append(peaks)
-        # canvas = util.draw_handpose(canvas, all_hand_peaks)
 
-        data = {
-            'body' : {
-                'candidates': candidate, #身体关节坐标
-                'subsets': subset #身体关节连接信息
-            },
-            'hands': all_hand_peaks
-        }
+        if is_draw: canvas = util.draw_handpose(canvas, all_hand_peaks)
 
-        if not os.path.exists(output_folder):
-            os.makedirs(output_folder)
+        # data = {
+        #     'body' : {
+        #         'candidates': candidate, #身体关节坐标
+        #         'subsets': subset #身体关节连接信息
+        #     },
+        #     'hands': all_hand_peaks
+        # }
         
-        output_npy = os.path.join(output_folder, file_path.split('/')[-1].split('.')[0] + '.npy')
-        print("Saved: '", output_npy, "'")
-        np.save(output_npy, data)
+        bodies = dict(candidate=candidate, subset=subset)
+        pose = dict(bodies=bodies, hands=hands_list, faces=None)
 
-        # output_png = output_folder + file_path.split('/')[-1].split('.')[0] + '.png'
-        # print("Saved: '", output_png, "'")
-        # cv2.imwrite(output_png, canvas)
+        output_path_npy = os.path.join(output_folder, file_path.split('/')[-1].split('.')[0] + '.npy')
+        print("Saved: '", output_path_npy, "'")
+        np.save(output_path_npy, pose)
+
+        if is_draw:
+            output_path_png = os.path.join(output_folder, file_path.split('/')[-1].split('.')[0] + '.png')
+            print("Saved: '", output_path_png, "'")
+            cv2.imwrite(output_path_png, canvas)
 
     # 释放资源并关闭窗口
     cv2.destroyAllWindows()
 
+
+def extract_poses(blender_folder, output_folder, pose_parsing_model, is_draw = False):
+    if pose_parsing_model == 'openpose':
+        extract_poses_openpose(blender_folder, output_folder, is_draw)
+    elif pose_parsing_model == 'dwpose':
+        extract_poses_dwpose(blender_folder, output_folder, is_draw)
+    else:
+        raise Exception("Unexpected Setting for pose parsing model. Valid choice in ['openpose', 'dwpose']")
 
 def stitch_pngs(prompt_folder, output_folder):
     # 设置文件路径
@@ -186,7 +215,11 @@ if __name__ == "__main__":
     parser.add_argument("-f", "--frames", type=int,
                         required=True, help="num of frames")
     parser.add_argument("--mode", type=str,
-                        required=True, help="pose parsing model")
+                        required=True, help="pose parsing model", 
+                        choices = ['openpose', 'dwpose'])
+    parser.add_argument("--is_draw", type=int,
+                        required=False, help="flag to save pose img",
+                        default=0, choices=[1,0])
     args = parser.parse_args()
     
     model_file = args.model_3d
@@ -202,10 +235,10 @@ if __name__ == "__main__":
     render_animation(model_fbx_path=model_file, animation_fbx_path=animation_file, output=blender_folder, camera_x=args.camera_x, camera_z=args.camera_z, camera_y=args.camera_y, frames=args.frames)
     print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), ': render animation successfullly')
     
-    
-    
+    if not os.path.exists(prompt_folder): os.makedirs(prompt_folder)
+
     # Openpose/dwpose 提取姿势
-    extract_poses(blender_folder, prompt_folder, pose_parsing_model)    
+    extract_poses(blender_folder, prompt_folder, pose_parsing_model, is_draw=args.is_draw)    
 
     print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), ': extract poses successfullly')
     
@@ -214,5 +247,5 @@ if __name__ == "__main__":
     # print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), ': stitch pngs successfullly')
     
     # 清空渲染、提取姿势文件夹
-    shutil.rmtree(blender_folder)
-    shutil.rmtree(prompt_folder)
+    # shutil.rmtree(blender_folder)
+    # shutil.rmtree(prompt_folder)
