@@ -185,10 +185,13 @@ if __name__ == "__main__":
                         required=True, help="z index of camera")
     parser.add_argument("-f", "--frames", type=int,
                         required=True, help="num of frames")
+    parser.add_argument("--mode", type=str,
+                        required=True, help="pose parsing model")
     args = parser.parse_args()
     
     model_file = args.model_3d
     animation_file = args.animation_3d
+    pose_parsing_model = args.mode
     output_path = os.path.join(args.output_path, os.path.basename(animation_file).split('.')[0])
     blender_folder = output_path + '/blender/'
     prompt_folder = output_path + '/prompts/'
@@ -199,8 +202,11 @@ if __name__ == "__main__":
     render_animation(model_fbx_path=model_file, animation_fbx_path=animation_file, output=blender_folder, camera_x=args.camera_x, camera_z=args.camera_z, camera_y=args.camera_y, frames=args.frames)
     print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), ': render animation successfullly')
     
-    # Openpose 提取姿势
-    extract_poses(blender_folder, prompt_folder)
+    
+    
+    # Openpose/dwpose 提取姿势
+    extract_poses(blender_folder, prompt_folder, pose_parsing_model)    
+
     print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), ': extract poses successfullly')
     
     # # 拼接图片
