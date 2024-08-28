@@ -23,8 +23,8 @@ DWpose: https://github.com/IDEA-Research/DWPose/tree/main
 2. 安装 pytorch cuda cuDNN 环境
 3. Pip install -r requirements.txt （注意现在默认的是numpy2，会有warning，可以选择降级）
 4. 下载模型，
-- Openpose 相关：https://drive.google.com/drive/folders/1JsvI4M4ZTg98fmnCZLFM-3TeovnCRElG，保存在 pytorch_openpose/model/
-- DWpose 相关：https://drive.google.com/file/d/1Oy9O18cYk8Dk776DbxpCPWmJtJCl-OCm/view，保存在 dwpose/ckpts/
+- Openpose 相关：https://drive.google.com/drive/folders/1JsvI4M4ZTg98fmnCZLFM-3TeovnCRElG  保存在 pytorch_openpose/model/
+- DWpose 相关：https://drive.google.com/file/d/1Oy9O18cYk8Dk776DbxpCPWmJtJCl-OCm/view  保存在 dwpose/ckpts/
 
 
 ### 使用指令
