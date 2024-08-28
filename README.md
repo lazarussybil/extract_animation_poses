@@ -29,37 +29,24 @@ DWpose: https://github.com/IDEA-Research/DWPose/tree/main
 
 ### 使用指令
 
+```
 python .\extract_animation_poses.py -a 'fbx_animation_file_path' -m 'fbx_model_file_path' -o 'output_path' -f int32 -x float -y float -z float --mode [dwpose/openpose] --is_draw [0/1]
+```
 
 指令示例：
 python extract_animation_poses.py -m C:\Users\Ronson\Downloads\动画测试2\动画测试2\FBX2013\Ch33_nonPBR_Rig.fbx -a C:\Users\Ronson\Downloads\动画测试2\动画测试2\Animation\FBX2013\AnimTest.fbx -o D:\0821\test -f 100 -x -0 -y -6 -z 0.8  --mode dwpose --is_draw 1
 
 参数解释：
-    -a | --animation_3d： FBX文件，以.fbx结尾
-    -m | --model_3d： FBX文件，以.fbx结尾
-    -o | --output_path: 输出文件夹
-    -f | --frames: 动画帧数，默认60，建议100
-    -x | --camera_x: blender中摄像头的x坐标
-    -y | --camera_y: blender中摄像头的y坐标
-    -z | --camera_z: blender中摄像头的z坐标
-    --mode: 姿态提取模型，可选值 openpose / dwpose
-    --is_draw: 是否保存姿态图像，可选值 1 / 0
+
+-a | --animation_3d： FBX文件，以.fbx结尾
+-m | --model_3d： FBX文件，以.fbx结尾
+-o | --output_path: 输出文件夹
+-f | --frames: 动画帧数，默认60，建议100
+-x | --camera_x: blender中摄像头的x坐标
+-y | --camera_y: blender中摄像头的y坐标
+-z | --camera_z: blender中摄像头的z坐标
+--mode: 姿态提取模型，可选值 openpose / dwpose
+--is_draw: 是否保存姿态图像，可选值 1 / 0
 
 
-
-
-3. 运行（Run）
-```python
-python extract_animation_poses.py -m C:\Users\Ronson\Downloads\动画测试2\动画测试2\FBX2013\Ch33_nonPBR_Rig.fbx -a C:\Users\Ronson\Downloads\动画测试2\动画测试2\Animation\FBX2013\AnimTest.fbx -o D:\0821\test -f 100 -x -0 -y -6 -z 0.8  --mode openpose --is_draw 1
-```
-参数解释：
-    -a | --animation_3d： FBX文件，以.fbx结尾
-    -m | --model_3d： FBX文件，以.fbx结尾
-    -o | --output_path: 输出文件夹
-    -f | --frames: 动画帧数，默认60，建议100
-    -x | --camera_x: blender中摄像头的x坐标
-    -y | --camera_y: blender中摄像头的y坐标
-    -z | --camera_z: blender中摄像头的z坐标
-    --mode: 姿态提取模型，可选值 openpose / dwpose
-    --is_draw: 是否保存姿态图像，可选值 1 / 0
 
