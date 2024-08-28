@@ -1,42 +1,59 @@
-# 提取3d动画的姿势（Extract 3d animation poses）
+# 3D动画抽取动作序列（Extract 3d animation poses）
 
-## 资源（Resources）
+关键词：blender, fbx, bpy, openpose, dwpose
 
-1.  小红书博主“芒果和小猫（9632517736）”的《我写了一个脚本AI生成游戏角色动画》
-2.  pytorch-openpose：<https://github.com/Hzzone/pytorch-openpose>
-3.  openpose 使用教程： <https://blog.csdn.net/liaoqingjian/article/details/115366866>
-4.  CUDA 安装教程： <https://blog.csdn.net/Jin1Yang/article/details/124754015>
-5.  Mixamo 官网： https://www.mixamo.com/#/
+魔改自：https://github.com/Knife14/extract-animation-poses
 
-## 描述（Describtions）
+## 使用场景
+将 FBX 格式的3D动画用 blender 渲染，对帧画面使用 openpose / dwpose 进行姿势提取。
 
-将一个3D的人物动画，通过blender、openpose进行“侧面”渲染、提取姿势等操作，完成3D与2D动画的转换（尚未完成2d动画的生成）。
+## 使用教程
+### 方法一：Docker 镜像
 
-## 使用步骤（Get Started & Run）
+拉取镜像：docker push lazarussybil/extract_animation_poses:0.0.3
 
-1. 安装环境（Install Requriements）
+启动指令：docker run -p 8000:7777 --gpus all -it extract_animation_poses_llx:0.0.2 /bin/bash
 
-首先，需要更新GPU驱动以及安装CUDA、CUDNN，可以参考 <https://blog.csdn.net/Jin1Yang/article/details/124754015>
+### 方法二：安装环境
+1. 确保 python 3.11 的环境【3.10大概率支持，3.12、3.7不支持】
+2. 安装 pytorch cuda cuDNN 环境
+3. Pip install -r requirements.txt （注意现在默认的是numpy2，会有warning，可以选择降级）
+4. 从下方链接下载模型后，保存在 /model文件夹中 
+https://drive.google.com/drive/folders/1JsvI4M4ZTg98fmnCZLFM-3TeovnCRElG
 
-然后安装python依赖库（可以参考自己情况选择在虚拟环境（venv）、或容器（docker）下操作）
-```
-pip install -r requirements.txt
-```
-其中torch、torch-vision、torch-audio需要找到对应的版本，具体参考网页 <https://pytorch.org/get-started/locally/>，根据自身情况进行选择
+### 使用指令
 
-2. 安装预训练模型（Download the Models）
+6. python .\extract_animation_poses.py -a 'fbx_animation_file_path' -m 'fbx_model_file_path' -o 'output_path' -f int32 -x float -y float -z float --mode [dwpose/openpose] --is_draw [0/1]
 
-参考 <https://github.com/Hzzone/pytorch-openpose> 的README.md中Download the Models部分。
+指令示例：
+python extract_animation_poses.py -m C:\Users\Ronson\Downloads\动画测试2\动画测试2\FBX2013\Ch33_nonPBR_Rig.fbx -a C:\Users\Ronson\Downloads\动画测试2\动画测试2\Animation\FBX2013\AnimTest.fbx -o D:\0821\test -f 100 -x -0 -y -6 -z 0.8  --mode dwpose --is_draw 1
+
+参数解释：
+    -a | --animation_3d： FBX文件，以.fbx结尾
+    -m | --model_3d： FBX文件，以.fbx结尾
+    -o | --output_path: 输出文件夹
+    -f | --frames: 动画帧数，默认60，建议100
+    -x | --camera_x: blender中摄像头的x坐标
+    -y | --camera_y: blender中摄像头的y坐标
+    -z | --camera_z: blender中摄像头的z坐标
+    --mode: 姿态提取模型，可选值 openpose / dwpose
+    --is_draw: 是否保存姿态图像，可选值 1 / 0
+
+
+
 
 3. 运行（Run）
 ```python
-python extract_animation_poses.py -m D:\0821\测试动画\SK_Mannequin_Sequence.FBX -a D:\0821\测试动画\Animation\Talking_Casual_HandGesture18.FBX -o D:\0821\test -f 100 -x -0 -y -6 -z 0.8 --mode openpose --is_draw 1
+python extract_animation_poses.py -m C:\Users\Ronson\Downloads\动画测试2\动画测试2\FBX2013\Ch33_nonPBR_Rig.fbx -a C:\Users\Ronson\Downloads\动画测试2\动画测试2\Animation\FBX2013\AnimTest.fbx -o D:\0821\test -f 100 -x -0 -y -6 -z 0.8  --mode openpose --is_draw 1
 ```
 参数解释：
-
     -a | --animation_3d： FBX文件，以.fbx结尾
+    -m | --model_3d： FBX文件，以.fbx结尾
     -o | --output_path: 输出文件夹
-    -f | --frames: 动画帧数，默认60
+    -f | --frames: 动画帧数，默认60，建议100
     -x | --camera_x: blender中摄像头的x坐标
+    -y | --camera_y: blender中摄像头的y坐标
     -z | --camera_z: blender中摄像头的z坐标
-imp
+    --mode: 姿态提取模型，可选值 openpose / dwpose
+    --is_draw: 是否保存姿态图像，可选值 1 / 0
+
